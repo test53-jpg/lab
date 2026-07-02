@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>배낭 알고리즘 DP 체험</title>
+<style>
+  :root{
+    --bg:#f6fbff;
+    --card:#ffffff;
+    --line:#c9d9e8;
+    --text:#123;
+    --accent:#2b7cff;
+    --accent2:#00a86b;
+    --warn:#e85d04;
+    --danger:#d7263d;
+    --soft:#eef5ff;
+    --shadow:0 8px 22px rgba(25,60,100,0.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#f7fbff,#eef6ff);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  }
+  .wrap{
+    max-width:1400px;
+    margin:0 auto;
+    padding:16px;
+  }
+  h1{
+    margin:8px 0 10px;
+    font-size:clamp(1.8rem,3vw,3rem);
+    line-height:1.2;
+  }
+  h2{
+    margin:0 0 12px;
+    font-size:clamp(1.2rem,2.1vw,2rem);
+  }
+  h3{
+    margin:0 0 8px;
+    font-size:clamp(1.05rem,1.7vw,1.45rem);
+  }
+  p, li, button, label, select, input, td, th, .small, .badge, .formula{
+    font-size:clamp(0.98rem,1.45vw,1.15rem);
+  }
+  .intro{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width: 980px){
+    .grid{grid-template-columns:1fr}
+  }
+  .panel{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px;
+  }
+  .row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .space{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .items{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+    margin-top:12px;
+  }
+  .item{
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:linear-gradient(180deg,#fff,#f8fbff);
+    transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .item:hover{transform:translateY(-2px)}
+  .item.selected{
+    border-color:var(--accent2);
+    box-shadow:0 0 0 4px rgba(0,168,107,0.12);
+    background:#f2fff8;
+  }
+  .item-title{
+    font-weight:800;
+    font-size:clamp(1.08rem,1.6vw,1.3rem);
+    margin-bottom:8px;
+  }
+  .pill{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:999px;
+    background:var(--soft);
+    border:1px solid #d5e6ff;
+    margin:4px 6px 0 0;
+    font-weight:700;
+  }
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:14px;
+    padding:12px 16px;
+    font-weight:800;
+    cursor:pointer;
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(43,124,255,0.22);
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.secondary{
+    background:#6c7a89;
+    box-shadow:none;
+  }
+  .btn.green{
+    background:var(--accent2);
+    box-shadow:0 6px 16px rgba(0,168,107,0.22);
+  }
+  .btn.orange{
+    background:var(--warn);
+    box-shadow:0 6px 16px rgba(232,93,4,0.22);
+  }
+  .btn.ghost{
+    background:#eff5ff;
+    color:#1d4f91;
+    box-shadow:none;
+    border:2px solid #d3e4ff;
+  }
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:12px 0;
+  }
+  @media (max-width:700px){
+    .stats{grid-template-columns:1fr}
+  }
+  .stat{
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:#fbfdff;
+  }
+  .stat .label{
+    color:#4b637b;
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .stat .value{
+    font-weight:900;
+    font-size:clamp(1.25rem,2.5vw,2.1rem);
+  }
+  .warn{
+    color:var(--danger);
+    font-weight:900;
+  }
+  input[type="range"]{
+    width:min(360px,100%);
+    accent-color:var(--accent);
+    transform:scale(1.1);
+  }
+  .table-wrap{
+    overflow:auto;
+    border:2px solid var(--line);
+    border-radius:16px;
+    margin-top:12px;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
+    background:#fff;
+  }
+  th, td{
+    border:1px solid #d9e5f1;
+    padding:10px;
+    text-align:center;
+    vertical-align:middle;
+  }
+  th{
+    position:sticky;
+    top:0;
+    background:#eff6ff;
+    z-index:1;
+  }
+  .head-left{
+    position:sticky;
+    left:0;
+    background:#f7fbff;
+    z-index:2;
+    font-weight:800;
+  }
+  .future{
+    background:#fafcff;
+    color:#a0aec0;
+  }
+  .now{
+    background:#fff8e6;
+    outline:3px solid #ffd166;
+    font-weight:900;
+  }
+  .best{
+    background:#edfdf4;
+    color:#096b43;
+    font-weight:900;
+  }
+  .formula{
+    background:#f8fbff;
+    border:2px dashed #bed3ef;
+    border-radius:16px;
+    padding:12px;
+    line-height:1.6;
+    margin-top:10px;
+  }
+  .legend{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#f5f9ff;
+    border:1px solid #d9e7ff;
+    font-weight:800;
+  }
+  .dot{
+    width:14px;height:14px;border-radius:50%;
+    display:inline-block;
+  }
+  .note{
+    background:#fffdf2;
+    border:2px solid #f3e3a2;
+    border-radius:14px;
+    padding:10px 12px;
+    margin-top:10px;
+  }
+  canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    background:linear-gradient(180deg,#ffffff,#fbfdff);
+    border:2px solid var(--line);
+    border-radius:16px;
+  }
+  .footer-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <h1>배낭 알고리즘 DP 체험</h1>
+    <p><strong>해 볼 일:</strong> 물건을 골라 배낭에 담아 보고, 아래의 <strong>DP 표</strong>가 어떻게 채워지는지 단계별로 확인하세요. 같은 배낭 용량에서도 <strong>어떤 물건까지 고려했는가</strong>에 따라 최대 가치가 달라집니다.</p>
+    <div class="row">
+      <label for="capacity"><strong>배낭 최대 무게:</strong> <span id="capacityLabel">10</span> kg</label>
+      <input id="capacity" type="range" min="4" max="15" value="10" />
+      <button class="btn orange" id="resetBtn">다시 시작</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="space">
+        <h2>1. 내 배낭에 물건 담기</h2>
+        <div class="badge">선택한 물건을 눌러 <strong>넣기/빼기</strong></div>
+      </div>
+
+      <div class="items" id="itemsBox"></div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">현재 무게</div>
+          <div class="value"><span id="bagWeight">0</span> kg</div>
+        </div>
+        <div class="stat">
+          <div class="label">현재 가치</div>
+          <div class="value"><span id="bagValue">0</span> 점</div>
+        </div>
+        <div class="stat">
+          <div class="label">상태</div>
+          <div class="value" id="bagState">여유 있음</div>
+        </div>
+      </div>
+
+      <canvas id="bagChart" width="700" height="320" aria-label="배낭 현재 상태 그래프"></canvas>
+
+      <div class="footer-actions">
+        <button class="btn green" id="confirmBtn">선택 확정</button>
+        <button class="btn secondary" id="clearSelectBtn">선택 취소</button>
+      </div>
+
+      <div class="note" id="compareNote">
+        아직 선택을 확정하지 않았어요. 물건을 골라 본 뒤 <strong>선택 확정</strong>을 눌러 보세요.
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="space">
+        <h2>2. DP 단계 보기</h2>
+        <div class="badge">현재 단계: <strong id="stageText">0 / 6</strong></div>
+      </div>
+
+      <div class="row">
+        <button class="btn" id="nextStageBtn">다음 단계 계산</button>
+        <button class="btn ghost" id="allStageBtn">끝까지 계산</button>
+        <button class="btn ghost" id="prevStageBtn">한 단계 뒤로</button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <label for="inspectCapacity"><strong>살펴볼 용량:</strong> <span id="inspectLabel">5</span> kg</label>
+        <input id="inspectCapacity" type="range" min="0" max="10" value="5" />
+      </div>
+
+      <div class="formula" id="formulaBox"></div>
+
+      <canvas id="dpChart" width="800" height="360" aria-label="용량별 최대 가치 그래프"></canvas>
+      <div class="legend">
+        <span class="badge"><span class="dot" style="background:#2b7cff;"></span>현재 단계의 최대 가치</span>
+        <span class="badge"><span class="dot" style="background:#ffd166;"></span>살펴보는 용량</span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="dpTable"></table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const items = [
+    {name:"나침반", weight:2, value:3, color:"#5b8def"},
+    {name:"물병", weight:3, value:4, color:"#2fbf71"},
+    {name:"손전등", weight:4, value:5, color:"#f2a541"},
+    {name:"간식", weight:5, value:8, color:"#e76f51"},
+    {name:"침낭", weight:6, value:9, color:"#9b5de5"},
+    {name:"구급상자", weight:7, value:10, color:"#ef476f"}
+  ];
+
+  let capacity = 10;
+  let selected = new Set();
+  let confirmed = false;
+  let revealedStage = 0;
+  let inspectW = 5;
+
+  const el = {
+    capacity: document.getElementById("capacity"),
+    capacityLabel: document.getElementById("capacityLabel"),
+    itemsBox: document.getElementById("itemsBox"),
+    bagWeight: document.getElementById("bagWeight"),
+    bagValue: document.getElementById("bagValue"),
+    bagState: document.getElementById("bagState"),
+    compareNote: document.getElementById("compareNote"),
+    confirmBtn: document.getElementById("confirmBtn"),
+    clearSelectBtn: document.getElementById("clearSelectBtn"),
+    resetBtn: document.getElementById("resetBtn"),
+    nextStageBtn: document.getElementById("nextStageBtn"),
+    prevStageBtn: document.getElementById("prevStageBtn"),
+    allStageBtn: document.getElementById("allStageBtn"),
+    stageText: document.getElementById("stageText"),
+    inspectCapacity: document.getElementById("inspectCapacity"),
+    inspectLabel: document.getElementById("inspectLabel"),
+    formulaBox: document.getElementById("formulaBox"),
+    dpTable: document.getElementById("dpTable"),
+    bagChart: document.getElementById("bagChart"),
+    dpChart: document.getElementById("dpChart")
+  };
+
+  function computeDP(cap){
+    const n = items.length;
+    const dp = Array.from({length:n+1},()=>Array(cap+1).fill(0));
+    const choice = Array.from({length:n+1},()=>Array(cap+1).fill("none"));
+    for(let i=1;i<=n;i++){
+      const it = items[i-1];
+      for(let w=0;w<=cap;w++){
+        const notTake = dp[i-1][w];
+        let take = -Infinity;
+        if(it.weight <= w){
+          take = it.value + dp[i-1][w-it.weight];
+        }
+        if(take > notTake){
+          dp[i][w] = take;
+          choice[i][w] = "take";
+        }else{
+          dp[i][w] = notTake;
+          choice[i][w] = "skip";
+        }
+      }
+    }
+    return {dp, choice};
+  }
+
+  function chosenTotals(){
+    let weight = 0, value = 0;
+    selected.forEach(idx => {
+      weight += items[idx].weight;
+      value += items[idx].value;
+    });
+    return {weight, value};
+  }
+
+  function optimalChosen(cap){
+    const {dp, choice} = computeDP(cap);
+    let w = cap;
+    const picked = [];
+    for(let i=items.length;i>=1;i--){
+      if(choice[i][w] === "take"){
+        picked.push(i-1);
+        w -= items[i-1].weight;
+      }
+    }
+    picked.reverse();
+    return {picked, value:dp[items.length][cap], weight:picked.reduce((s,i)=>s+items[i].weight,0)};
+  }
+
+  function renderItems(){
+    el.itemsBox.innerHTML = "";
+    items.forEach((it, idx)=>{
+      const card = document.createElement("div");
+      card.className = "item" + (selected.has(idx) ? " selected" : "");
+      card.innerHTML = `
+        <div class="item-title">${it.name}</div>
+        <div class="pill">무게 ${it.weight} kg</div>
+        <div class="pill">가치 ${it.value} 점</div>
+        <div style="margin-top:10px;">
+          <button class="btn ${selected.has(idx) ? "secondary" : "green"}" style="width:100%;">
+            ${selected.has(idx) ? "빼기" : "담기"}
+          </button>
+        </div>
+      `;
+      card.querySelector("button").addEventListener("click", ()=>{
+        if(selected.has(idx)) selected.delete(idx);
+        else selected.add(idx);
+        confirmed = false;
+        renderAll();
+      });
+      el.itemsBox.appendChild(card);
+    });
+  }
+
+  function renderBagStats(){
+    const {weight, value} = chosenTotals();
+    el.bagWeight.textContent = weight;
+    el.bagValue.textContent = value;
+    if(weight > capacity){
+      el.bagState.innerHTML = `<span class="warn">초과! (${weight-capacity} kg 초과)</span>`;
+    }else if(weight === capacity){
+      el.bagState.textContent = "꽉 참";
+    }else{
+      el.bagState.textContent = "여유 있음";
+    }
+  }
+
+  function renderCompareNote(){
+    const totals = chosenTotals();
+    const best = optimalChosen(capacity);
+    const namesMine = [...selected].map(i=>items[i].name).join(", ") || "없음";
+    const namesBest = best.picked.map(i=>items[i].name).join(", ") || "없음";
+
+    if(!confirmed){
+      el.compareNote.innerHTML = `아직 선택을 확정하지 않았어요. 물건을 골라 본 뒤 <strong>선택 확정</strong>을 눌러 보세요.`;
+      return;
+    }
+
+    if(totals.weight > capacity){
+      el.compareNote.innerHTML = `지금 선택은 <strong class="warn">무게 초과</strong>예요. 내 선택: ${namesMine} → <strong>${totals.weight} kg, ${totals.value} 점</strong><br>DP가 찾은 최대 가치는 <strong>${best.value} 점</strong>이고, 한 가지 최적 선택은 <strong>${namesBest}</strong>예요.`;
+      return;
+    }
+
+    const diff = best.value - totals.value;
+    if(diff === 0){
+      el.compareNote.innerHTML = `훌륭해요! 내 선택: <strong>${namesMine}</strong> → <strong>${totals.weight} kg, ${totals.value} 점</strong><br>DP가 찾은 최대 가치도 <strong>${best.value} 점</strong>이에요. <strong>최적해</strong>를 찾았어요!`;
+    }else{
+      el.compareNote.innerHTML = `내 선택: <strong>${namesMine}</strong> → <strong>${totals.weight} kg, ${totals.value} 점</strong><br>DP가 찾은 최대 가치는 <strong>${best.value} 점</strong>이고, 한 가지 최적 선택은 <strong>${namesBest}</strong>예요. 즉, <strong>${diff} 점</strong> 더 좋아질 수 있어요.`;
+    }
+  }
+
+  function drawBagChart(){
+    const canvas = el.bagChart;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const totals = chosenTotals();
+    const maxWeightScale = Math.max(capacity, totals.weight, 1);
+    const maxValueScale = Math.max(optimalChosen(capacity).value, totals.value, 1);
+
+    ctx.fillStyle = "#123";
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("내 선택 그래프", 20, 30);
+
+    const chartTop = 60;
+    const chartBottom = H - 55;
+    const chartHeight = chartBottom - chartTop;
+
+    // axes
+    ctx.strokeStyle = "#8aa7c7";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(70, chartTop);
+    ctx.lineTo(70, chartBottom);
+    ctx.lineTo(W-30, chartBottom);
+    ctx.stroke();
+
+    // left scale labels
+    ctx.fillStyle = "#456";
+    ctx.font = "18px sans-serif";
+    ctx.fillText("크기", 24, chartTop-8);
+
+    const bars = [
+      {label:"무게(kg)", value:totals.weight, max:maxWeightScale, color: totals.weight>capacity ? "#d7263d" : "#2b7cff"},
+      {label:"가치(점)", value:totals.value, max:maxValueScale, color:"#00a86b"}
+    ];
+
+    const bw = 120, gap = 130;
+    bars.forEach((b, i)=>{
+      const x = 140 + i*(bw+gap);
+      const h = (b.value / b.max) * (chartHeight-30);
+      ctx.fillStyle = "#eef5ff";
+      ctx.fillRect(x, chartTop, bw, chartHeight);
+      ctx.fillStyle = b.color;
+      ctx.fillRect(x, chartBottom-h, bw, h);
+      ctx.fillStyle = "#123";
+      ctx.font = "bold 22px sans-serif";
+      ctx.fillText(String(b.value), x + 40, chartBottom-h-10);
+      ctx.font = "19px sans-serif";
+      ctx.fillText(b.label, x+16, chartBottom+28);
+      if(i===0){
+        ctx.fillStyle = "#e85d04";
+        const capY = chartBottom - (capacity / maxWeightScale) * (chartHeight-30);
+        ctx.fillRect(x-6, capY-2, bw+12, 4);
+        ctx.font = "18px sans-serif";
+        ctx.fillText("최대 무게 " + capacity + "kg", x-4, capY-10);
+      }
+    });
+
+    ctx.fillStyle = "#456";
+    ctx.font = "18px sans-serif";
+    ctx.fillText("세로축: 각 값의 크기", 70, H-16);
+  }
+
+  function renderFormula(){
+    const {dp, choice} = computeDP(capacity);
+    const i = revealedStage;
+    const w = inspectW;
+    if(i === 0){
+      el.formulaBox.innerHTML = `
+        <strong>시작 단계</strong><br>
+        아직 어떤 물건도 고려하지 않았어요.<br>
+        그래서 모든 용량에서 최대 가치는 <strong>0점</strong>입니다.<br>
+        <strong>DP[0][${w}] = 0</strong>
+      `;
+      return;
+    }
+    const it = items[i-1];
+    const notTake = dp[i-1][w];
+    if(w < it.weight){
+      el.formulaBox.innerHTML = `
+        <strong>${i}단계: ${it.name} 고려</strong><br>
+        살펴보는 용량은 <strong>${w} kg</strong>, 물건 무게는 <strong>${it.weight} kg</strong>입니다.<br>
+        이 물건은 <strong>너무 무거워서 넣을 수 없어요.</strong><br>
+        따라서 <strong>DP[${i}][${w}] = DP[${i-1}][${w}] = ${notTake}</strong>
+      `;
+    }else{
+      const take = it.value + dp[i-1][w-it.weight];
+      const bestText = choice[i][w] === "take" ? "넣는 편이 더 좋아요." : "넣지 않는 편이 더 좋아요.";
+      el.formulaBox.innerHTML = `
+        <strong>${i}단계: ${it.name} 고려</strong><br>
+        <strong>안 넣으면</strong> DP[${i-1}][${w}] = <strong>${notTake}</strong><br>
+        <strong>넣으면</strong> ${it.value} + DP[${i-1}][${w-it.weight}] = ${it.value} + ${dp[i-1][w-it.weight]} = <strong>${take}</strong><br>
+        따라서 <strong>DP[${i}][${w}] = max(${notTake}, ${take}) = ${dp[i][w]}</strong><br>
+        결론: <strong>${bestText}</strong>
+      `;
+    }
+  }
+
+  function drawDPChart(){
+    const canvas = el.dpChart;
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const {dp} = computeDP(capacity);
+    const row = dp[revealedStage];
+    const maxV = Math.max(1, ...dp[items.length]);
+
+    const left = 70, right = W-20, top = 35, bottom = H-55;
+    const chartW = right-left, chartH = bottom-top;
+
+    ctx.fillStyle = "#123";
+    ctx.font = "bold 24px sans-serif";
+    ctx.fillText("용량별 최대 가치", 20, 26);
+
+    ctx.strokeStyle = "#8aa7c7";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(left, top);
+    ctx.lineTo(left, bottom);
+    ctx.lineTo(right, bottom);
+    ctx.stroke();
+
+    for(let t=0;t<=maxV;t+=Math.max(1, Math.ceil(maxV/5))){
+      const y = bottom - (t/maxV)*chartH;
+      ctx.strokeStyle = "#e6eef8";
+      ctx.beginPath();
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+      ctx.fillStyle = "#456";
+      ctx.font = "16px sans-serif";
+      ctx.fillText(String(t), 26, y+5);
+    }
+
+    const barGap = 10;
+    const barW = chartW / (capacity+1) - barGap;
+    for(let w=0; w<=capacity; w++){
+      const x = left + w*(barW+barGap) + 6;
+      const val = row[w];
+      const h = (val/maxV)*chartH;
+      ctx.fillStyle = (w===inspectW) ? "#ffd166" : "#2b7cff";
+      ctx.fillRect(x, bottom-h, barW, h);
+      ctx.fillStyle = "#123";
+      ctx.font = "15px sans-serif";
+      ctx.fillText(String(w), x + Math.max(2,barW/3-2), bottom+20);
+      ctx.font = "bold 15px sans-serif";
+      ctx.fillText(String(val), x + Math.max(2,barW/3-2), bottom-h-6);
+    }
+
+    ctx.fillStyle = "#456";
+    ctx.font = "18px sans-serif";
+    ctx.fillText("가치(점)", 8, top-6);
+    ctx.fillText("용량(kg)", right-78, H-16);
+  }
+
+  function renderTable(){
+    const {dp} = computeDP(capacity);
+    let html = `<thead><tr><th class="head-left">단계 \\ 용량(kg)</th>`;
+    for(let w=0;w<=capacity;w++){
+      html += `<th ${w===inspectW ? 'style="background:#fff5d6;"' : ''}>${w}</th>`;
+    }
+    html += `</tr></thead><tbody>`;
+
+    for(let i=0;i<=items.length;i++){
+      const label = i===0 ? "0개 물건" : `${i}개 물건 (${items[i-1].name})`;
+      html += `<tr><td class="head-left">${label}</td>`;
+      for(let w=0;w<=capacity;w++){
+        let cls = "";
+        let content = dp[i][w];
+        if(i > revealedStage){
+          cls = "future";
+          content = "?";
+        }else{
+          if(i===revealedStage && w===inspectW) cls = "now";
+          else if(i===revealedStage) cls = "best";
+        }
+        html += `<td class="${cls}">${content}</td>`;
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody>`;
+    el.dpTable.innerHTML = html;
+  }
+
+  function renderStageText(){
+    el.stageText.textContent = `${revealedStage} / ${items.length}`;
+  }
+
+  function syncInspectRange(){
+    el.inspectCapacity.max = capacity;
+    if(inspectW > capacity) inspectW = capacity;
+    el.inspectCapacity.value = inspectW;
+    el.inspectLabel.textContent = inspectW;
+  }
+
+  function renderAll(){
+    el.capacityLabel.textContent = capacity;
+    renderItems();
+    renderBagStats();
+    renderCompareNote();
+    renderStageText();
+    syncInspectRange();
+    renderFormula();
+    renderTable();
+    drawBagChart();
+    drawDPChart();
+  }
+
+  el.capacity.addEventListener("input", e=>{
+    capacity = Number(e.target.value);
+    if(inspectW > capacity) inspectW = capacity;
+    confirmed = false;
+    renderAll();
+  });
+
+  el.inspectCapacity.addEventListener("input", e=>{
+    inspectW = Number(e.target.value);
+    el.inspectLabel.textContent = inspectW;
+    renderFormula();
+    renderTable();
+    drawDPChart();
+  });
+
+  el.confirmBtn.addEventListener("click", ()=>{
+    confirmed = true;
+    renderCompareNote();
+    drawBagChart();
+  });
+
+  el.clearSelectBtn.addEventListener("click", ()=>{
+    selected.clear();
+    confirmed = false;
+    renderAll();
+  });
+
+  el.resetBtn.addEventListener("click", ()=>{
+    capacity = 10;
+    selected.clear();
+    confirmed = false;
+    revealedStage = 0;
+    inspectW = 5;
+    el.capacity.value = capacity;
+    renderAll();
+  });
+
+  el.nextStageBtn.addEventListener("click", ()=>{
+    if(revealedStage < items.length){
+      revealedStage++;
+      renderAll();
+    }
+  });
+
+  el.prevStageBtn.addEventListener("click", ()=>{
+    if(revealedStage > 0){
+      revealedStage--;
+      renderAll();
+    }
+  });
+
+  el.allStageBtn.addEventListener("click", ()=>{
+    revealedStage = items.length;
+    renderAll();
+  });
+
+  el.dpChart.addEventListener("click", (e)=>{
+    const rect = el.dpChart.getBoundingClientRect();
+    const x = (e.clientX - rect.left) * (el.dpChart.width / rect.width);
+    const left = 70, right = el.dpChart.width - 20;
+    if(x < left || x > right) return;
+    const chartW = right - left;
+    const slot = chartW / (capacity + 1);
+    const w = Math.round((x - left - slot/2) / slot + 0.5);
+    inspectW = Math.max(0, Math.min(capacity, w));
+    renderAll();
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
