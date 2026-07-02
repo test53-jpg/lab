@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>알고리즘 탐험대</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#16202a;
+      --sub:#4b5b6a;
+      --line:#d9e2ec;
+      --accent:#2f6fed;
+      --accent-dark:#1f57c2;
+      --soft:#eaf1ff;
+      --shadow:0 14px 34px rgba(22,32,42,0.10);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#f7faff 0%, #eef4fb 100%);
+      color:var(--text);
+      font-family:Arial, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+      line-height:1.7;
+    }
+
+    body{
+      min-height:100vh;
+    }
+
+    .wrap{
+      width:min(1100px, 92vw);
+      margin:0 auto;
+      padding:48px 0 64px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#dfeaff 0%, #f8fbff 55%, #eef4ff 100%);
+      border:1px solid #d7e4ff;
+      border-radius:32px;
+      padding:42px 28px;
+      box-shadow:var(--shadow);
+    }
+
+    .eyebrow{
+      display:inline-block;
+      font-size:1rem;
+      font-weight:700;
+      color:var(--accent-dark);
+      background:#ffffffcc;
+      border:1px solid #d5e2ff;
+      border-radius:999px;
+      padding:8px 14px;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0 0 14px;
+      font-size:clamp(2.2rem, 5vw, 4rem);
+      line-height:1.15;
+      letter-spacing:-0.02em;
+    }
+
+    .subtitle{
+      margin:0;
+      font-size:clamp(1.15rem, 2.5vw, 1.5rem);
+      color:var(--sub);
+      font-weight:600;
+    }
+
+    .section-title{
+      margin:42px 0 20px;
+      font-size:clamp(1.5rem, 3vw, 2rem);
+      letter-spacing:-0.01em;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:22px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:24px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .card-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .badge{
+      flex:0 0 auto;
+      font-size:0.95rem;
+      font-weight:700;
+      color:var(--accent-dark);
+      background:var(--soft);
+      border:1px solid #cfe0ff;
+      border-radius:999px;
+      padding:7px 12px;
+    }
+
+    .card h2{
+      margin:0;
+      font-size:clamp(1.55rem, 3vw, 2rem);
+      line-height:1.25;
+      letter-spacing:-0.02em;
+    }
+
+    .item{
+      background:#fbfcfe;
+      border:1px solid #e7edf5;
+      border-radius:18px;
+      padding:15px 16px;
+    }
+
+    .label{
+      display:block;
+      margin-bottom:6px;
+      font-size:1rem;
+      font-weight:800;
+      color:var(--accent-dark);
+    }
+
+    .text{
+      margin:0;
+      font-size:1.08rem;
+      color:var(--text);
+    }
+
+    .button-row{
+      margin-top:auto;
+      padding-top:4px;
+    }
+
+    .open-btn{
+      display:inline-block;
+      width:100%;
+      text-align:center;
+      text-decoration:none;
+      font-size:1.1rem;
+      font-weight:800;
+      color:#fff;
+      background:linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+      border-radius:16px;
+      padding:16px 18px;
+      box-shadow:0 10px 20px rgba(47,111,237,0.24);
+      transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .open-btn:hover,
+    .open-btn:focus{
+      transform:translateY(-2px);
+      box-shadow:0 14px 24px rgba(47,111,237,0.28);
+      outline:none;
+    }
+
+    .footer{
+      margin-top:28px;
+      text-align:center;
+      color:var(--sub);
+      font-size:1rem;
+      font-weight:600;
+    }
+
+    @media (max-width: 640px){
+      .wrap{
+        padding:24px 0 40px;
+      }
+
+      .hero{
+        padding:28px 20px;
+        border-radius:24px;
+      }
+
+      .card{
+        padding:20px;
+        border-radius:20px;
+      }
+
+      .item{
+        padding:14px;
+      }
+
+      .open-btn{
+        padding:15px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">영재 탐구 산출물 아카이브</div>
+      <h1>알고리즘 탐험대</h1>
+      <p class="subtitle">다양한 알고리즘을 알아보자</p>
+    </section>
+
+    <h2 class="section-title">탐구 산출물</h2>
+
+    <section class="grid" aria-label="산출물 목록">
+      <article class="card">
+        <div class="card-top">
+          <h2>배낭 알고리즘</h2>
+          <span class="badge">탐구 카드</span>
+        </div>
+
+        <div class="item">
+          <span class="label">탐구 질문</span>
+          <p class="text">제한된 무게 안에서 여러 물건 중 무엇을 골라야 가장 큰 가치를 얻을 수 있을까?</p>
+        </div>
+
+        <div class="item">
+          <span class="label">사고 흔적</span>
+          <p class="text">처음에는 가치가 큰 물건부터 담아 보았지만 항상 최선의 결과가 나오지 않았다. 그래서 무게와 가치를 함께 비교하며 경우를 체계적으로 따지는 방법을 살펴보았다.</p>
+        </div>
+
+        <div class="item">
+          <span class="label">열린 결론</span>
+          <p class="text">배낭 알고리즘은 단순한 선택보다 더 나은 해답을 찾게 도와주지만, 문제 조건에 따라 풀이 방식이 달라질 수 있다. 앞으로는 실제 생활의 선택 문제와 연결해 볼 수 있다.</p>
+        </div>
+
+        <div class="button-row">
+          <a href="test.html" target="_blank" rel="noopener" class="open-btn">산출물 열기</a>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">궁금한 카드를 눌러 산출물을 직접 살펴보세요.</div>
+  </main>
+</body>
+</html>
