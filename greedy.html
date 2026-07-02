@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>그리디 알고리즘 거스름돈 시뮬레이션</title>
+<style>
+  :root{
+    --bg:#f4f8ff;
+    --card:#ffffff;
+    --line:#cfe0ff;
+    --text:#183153;
+    --blue:#2f6fff;
+    --green:#14a06f;
+    --orange:#f39c12;
+    --red:#d94a4a;
+    --shadow:0 8px 24px rgba(0,0,0,0.08);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#eef5ff 0%, #f9fbff 100%);
+    color:var(--text);
+    font-family:Arial,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  }
+  .wrap{
+    max-width:1200px;
+    margin:0 auto;
+    padding:20px;
+  }
+  h1{
+    margin:0 0 10px;
+    font-size:clamp(1.9rem,4vw,3rem);
+    line-height:1.2;
+  }
+  .sub{
+    font-size:clamp(1rem,2vw,1.25rem);
+    line-height:1.6;
+    margin-bottom:18px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:18px;
+  }
+  .card{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:20px;
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .title{
+    font-size:clamp(1.25rem,2.5vw,1.75rem);
+    font-weight:800;
+    margin-bottom:12px;
+  }
+  .row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin:10px 0;
+  }
+  .label{
+    font-size:clamp(1rem,1.9vw,1.2rem);
+    font-weight:800;
+  }
+  .big{
+    font-size:clamp(1.6rem,4vw,2.7rem);
+    font-weight:900;
+    color:var(--blue);
+  }
+  .small{
+    font-size:clamp(0.95rem,1.6vw,1.05rem);
+    color:#456;
+    line-height:1.5;
+  }
+  input[type="range"]{
+    width:min(100%,460px);
+    accent-color:var(--blue);
+  }
+  .coins{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin-top:12px;
+  }
+  .coin{
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:#fbfdff;
+  }
+  .coin h3{
+    margin:0 0 10px;
+    font-size:clamp(1.05rem,2vw,1.3rem);
+  }
+  .num{
+    color:var(--green);
+    font-weight:900;
+    font-size:clamp(1.1rem,2.2vw,1.5rem);
+    min-width:3ch;
+    text-align:center;
+  }
+  .vars{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+    margin-top:14px;
+  }
+  .varbox{
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:12px;
+    background:#f8fbff;
+    text-align:center;
+  }
+  .varbox .name{
+    font-size:clamp(0.95rem,1.6vw,1.05rem);
+    font-weight:800;
+    color:#476;
+    margin-bottom:6px;
+  }
+  .varbox .value{
+    font-size:clamp(1.15rem,2.5vw,1.7rem);
+    font-weight:900;
+    color:var(--blue);
+  }
+  .compare{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin-top:14px;
+  }
+  .box{
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    background:#fbfdff;
+  }
+  .box .name{
+    font-size:clamp(1rem,1.8vw,1.15rem);
+    font-weight:800;
+    margin-bottom:8px;
+  }
+  .box .value{
+    font-size:clamp(1.4rem,3vw,2rem);
+    font-weight:900;
+  }
+  .status{
+    margin-top:14px;
+    padding:14px;
+    border-radius:16px;
+    border:2px solid var(--line);
+    font-size:clamp(1rem,1.8vw,1.15rem);
+    line-height:1.6;
+    background:#f8fbff;
+  }
+  .good{background:#eefbf5;border-color:#bfe8d3}
+  .warn{background:#fff8ea;border-color:#f0d19d}
+  .bad{background:#fff1f1;border-color:#efbcbc}
+  .btns{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+  button{
+    border:none;
+    border-radius:14px;
+    padding:12px 16px;
+    font-size:clamp(1rem,1.8vw,1.15rem);
+    font-weight:900;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+  .b1{background:var(--blue);color:white}
+  .b2{background:#eaf2ff;color:#1c5eff}
+  .b3{background:#ffecec;color:#bf3939}
+  ol{
+    margin:8px 0 0 0;
+    padding-left:22px;
+    font-size:clamp(1rem,1.8vw,1.1rem);
+    line-height:1.7;
+  }
+  canvas{
+    width:100%;
+    height:auto;
+    display:block;
+    border:2px solid var(--line);
+    border-radius:16px;
+    background:white;
+    margin-top:12px;
+  }
+  .pillline{
+    margin-top:12px;
+    line-height:1.9;
+  }
+  .pill{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid #cfe0ff;
+    background:#eef5ff;
+    font-weight:800;
+    margin:3px 6px 3px 0;
+    font-size:clamp(0.92rem,1.5vw,1.02rem);
+  }
+  .concept{
+    margin-top:10px;
+    font-size:clamp(1rem,1.8vw,1.12rem);
+    line-height:1.7;
+  }
+  @media (max-width:900px){
+    .grid{grid-template-columns:1fr}
+    .coins,.compare{grid-template-columns:1fr}
+    .vars{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>거스름돈으로 배우는 그리디 알고리즘</h1>
+  <div class="sub">
+    손님에게 <b>N원</b>을 거슬러 줄 때, <b>동전 수를 가장 적게</b> 하는 방법을 찾아보세요.
+    사용할 수 있는 동전은 <b>500원, 100원, 50원, 10원</b>입니다.
+    슬라이더를 움직이면 <b>각 변수 값이 즉시 변합니다.</b>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <div class="title">1. 금액과 동전 개수를 직접 조작하기</div>
+
+      <div class="row">
+        <span class="label">거슬러 줄 돈 N</span>
+        <input id="amount" type="range" min="0" max="5000" step="10" value="1260">
+        <span class="big"><span id="amountText">1260</span>원</span>
+      </div>
+      <div class="small">N의 최대값은 5000원으로 제한했습니다. 10의 배수만 선택됩니다.</div>
+
+      <div class="vars">
+        <div class="varbox"><div class="name">변수 N</div><div class="value" id="varN">1260</div></div>
+        <div class="varbox"><div class="name">남은 차이</div><div class="value" id="varDiff">1260</div></div>
+        <div class="varbox"><div class="name">내 총금액</div><div class="value" id="varMyMoney">0</div></div>
+        <div class="varbox"><div class="name">내 동전 수</div><div class="value" id="varMyCoins">0</div></div>
+      </div>
+
+      <div class="coins">
+        <div class="coin">
+          <h3>500원 동전: <span class="num" id="c500Text">0</span>개</h3>
+          <input id="c500" type="range" min="0" max="10" step="1" value="0">
+          <div class="small">변수 a = 500원 동전 개수, 금액 = <span id="v500">0</span>원</div>
+        </div>
+        <div class="coin">
+          <h3>100원 동전: <span class="num" id="c100Text">0</span>개</h3>
+          <input id="c100" type="range" min="0" max="50" step="1" value="0">
+          <div class="small">변수 b = 100원 동전 개수, 금액 = <span id="v100">0</span>원</div>
+        </div>
+        <div class="coin">
+          <h3>50원 동전: <span class="num" id="c50Text">0</span>개</h3>
+          <input id="c50" type="range" min="0" max="100" step="1" value="0">
+          <div class="small">변수 c = 50원 동전 개수, 금액 = <span id="v50">0</span>원</div>
+        </div>
+        <div class="coin">
+          <h3>10원 동전: <span class="num" id="c10Text">0</span>개</h3>
+          <input id="c10" type="range" min="0" max="500" step="1" value="0">
+          <div class="small">변수 d = 10원 동전 개수, 금액 = <span id="v10">0</span>원</div>
+        </div>
+      </div>
+
+      <div class="compare">
+        <div class="box">
+          <div class="name">내가 만든 거스름돈</div>
+          <div class="value" style="color:var(--green)"><span id="myTotalMoney">0</span>원</div>
+          <div class="small">식: 500×a + 100×b + 50×c + 10×d</div>
+        </div>
+        <div class="box">
+          <div class="name">그리디 알고리즘 결과</div>
+          <div class="value" style="color:var(--blue)"><span id="greedyCoinCount">6</span>개</div>
+          <div class="small">최소 동전 수, 정확한 금액 <span id="greedyTotalMoney">1260</span>원</div>
+        </div>
+      </div>
+
+      <div id="statusBox" class="status warn"></div>
+
+      <div class="btns">
+        <button id="fillGreedy" class="b1">그리디대로 채우기</button>
+        <button id="randomAmount" class="b2">새 금액 뽑기</button>
+        <button id="resetAll" class="b3">다시 시작</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="title">2. 그리디 알고리즘이 고르는 방법</div>
+      <div class="small">규칙: <b>남은 돈보다 작거나 같은 가장 큰 동전</b>을 먼저 가능한 만큼 고릅니다.</div>
+
+      <ol id="greedySteps"></ol>
+
+      <div class="vars">
+        <div class="varbox"><div class="name">그리디 500원</div><div class="value" id="g500">2</div></div>
+        <div class="varbox"><div class="name">그리디 100원</div><div class="value" id="g100">2</div></div>
+        <div class="varbox"><div class="name">그리디 50원</div><div class="value" id="g50">1</div></div>
+        <div class="varbox"><div class="name">그리디 10원</div><div class="value" id="g10">1</div></div>
+      </div>
+
+      <div class="compare">
+        <div class="box">
+          <div class="name">그리디가 확인한 횟수</div>
+          <div class="value" style="color:var(--green)"><span id="greedyChecks">4</span>번</div>
+          <div class="small">동전 종류 4가지만 차례대로 확인</div>
+        </div>
+        <div class="box">
+          <div class="name">모든 경우를 다 따지면</div>
+          <div class="value" style="color:var(--orange)"><span id="bruteforceChecks">0</span>개</div>
+          <div class="small">가능한 동전 조합 수의 상한</div>
+        </div>
+      </div>
+
+      <canvas id="chart" width="900" height="620"></canvas>
+
+      <div class="pillline">
+        <span class="pill">큰 동전부터 선택</span>
+        <span class="pill">즉시 피드백</span>
+        <span class="pill">최소 동전 수 비교</span>
+        <span class="pill">효율 비교</span>
+      </div>
+
+      <div id="conceptText" class="concept"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  const amount = document.getElementById('amount');
+  const amountText = document.getElementById('amountText');
+
+  const c500 = document.getElementById('c500');
+  const c100 = document.getElementById('c100');
+  const c50 = document.getElementById('c50');
+  const c10 = document.getElementById('c10');
+
+  const c500Text = document.getElementById('c500Text');
+  const c100Text = document.getElementById('c100Text');
+  const c50Text = document.getElementById('c50Text');
+  const c10Text = document.getElementById('c10Text');
+
+  const v500 = document.getElementById('v500');
+  const v100 = document.getElementById('v100');
+  const v50 = document.getElementById('v50');
+  const v10 = document.getElementById('v10');
+
+  const varN = document.getElementById('varN');
+  const varDiff = document.getElementById('varDiff');
+  const varMyMoney = document.getElementById('varMyMoney');
+  const varMyCoins = document.getElementById('varMyCoins');
+
+  const myTotalMoney = document.getElementById('myTotalMoney');
+  const greedyTotalMoney = document.getElementById('greedyTotalMoney');
+  const greedyCoinCount = document.getElementById('greedyCoinCount');
+  const greedySteps = document.getElementById('greedySteps');
+  const greedyChecks = document.getElementById('greedyChecks');
+  const bruteforceChecks = document.getElementById('bruteforceChecks');
+  const statusBox = document.getElementById('statusBox');
+  const conceptText = document.getElementById('conceptText');
+
+  const g500 = document.getElementById('g500');
+  const g100 = document.getElementById('g100');
+  const g50 = document.getElementById('g50');
+  const g10 = document.getElementById('g10');
+
+  const fillGreedy = document.getElementById('fillGreedy');
+  const randomAmount = document.getElementById('randomAmount');
+  const resetAll = document.getElementById('resetAll');
+
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+
+  const coinTypes = [500,100,50,10];
+
+  function fmt(n){
+    return Number(n).toLocaleString('ko-KR');
+  }
+
+  function greedyChange(n){
+    let remain = n;
+    const result = {};
+    const steps = [];
+    for(const coin of coinTypes){
+      const count = Math.floor(remain / coin);
+      result[coin] = count;
+      const before = remain;
+      remain -= count * coin;
+      steps.push({
+        coin: coin,
+        before: before,
+        count: count,
+        used: count * coin,
+        remain: remain
+      });
+    }
+    return {result, steps, remain};
+  }
+
+  function getMyCounts(){
+    return {
+      500:+c500.value,
+      100:+c100.value,
+      50:+c50.value,
+      10:+c10.value
+    };
+  }
+
+  function calcMoney(obj){
+    return obj[500]*500 + obj[100]*100 + obj[50]*50 + obj[10]*10;
+  }
+
+  function calcCoins(obj){
+    return obj[500] + obj[100] + obj[50] + obj[10];
+  }
+
+  function bruteForceUpperBound(n){
+    return (Math.floor(n/500)+1) * (Math.floor(n/100)+1) * (Math.floor(n/50)+1) * (Math.floor(n/10)+1);
+  }
+
+  function updateMaxRanges(n){
+    c500.max = Math.floor(n/500);
+    c100.max = Math.floor(n/100);
+    c50.max = Math.floor(n/50);
+    c10.max = Math.floor(n/10);
+
+    [c500,c100,c50,c10].forEach(slider=>{
+      if(+slider.value > +slider.max) slider.value = slider.max;
+    });
+  }
+
+  function setSteps(steps){
+    greedySteps.innerHTML = '';
+    steps.forEach(s=>{
+      const li = document.createElement('li');
+      li.innerHTML =
+        '<b>' + fmt(s.before) + '원</b>에서 ' +
+        '<b>' + s.coin + '원</b> 동전을 가능한 만큼 사용 → ' +
+        '<b>' + s.count + '개</b> 사용, ' +
+        '<b>' + fmt(s.used) + '원</b> 처리, ' +
+        '남은 돈 <b>' + fmt(s.remain) + '원</b>';
+      greedySteps.appendChild(li);
+    });
+  }
+
+  function setStatus(n, myMoney, myCoins, gCoins){
+    if(myMoney === n && myCoins === gCoins){
+      statusBox.className = 'status good';
+      statusBox.innerHTML = '정확합니다. <b>' + fmt(n) + '원</b>을 맞게 주었고, 동전 수도 <b>최소 ' + gCoins + '개</b>입니다. 그리디 알고리즘과 같은 답입니다.';
+    }else if(myMoney === n && myCoins > gCoins){
+      statusBox.className = 'status warn';
+      statusBox.innerHTML = '금액은 맞지만 동전 수가 <b>' + (myCoins-gCoins) + '개 더 많습니다.</b> 큰 동전을 먼저 쓰면 더 적은 개수로 줄 수 있습니다.';
+    }else if(myMoney < n){
+      statusBox.className = 'status bad';
+      statusBox.innerHTML = '아직 <b>' + fmt(n-myMoney) + '원</b>이 부족합니다. 남은 돈을 어떤 동전으로 채울지 생각해 보세요.';
+    }else{
+      statusBox.className = 'status bad';
+      statusBox.innerHTML = '<b>' + fmt(myMoney-n) + '원</b>을 더 주었습니다. 정확한 금액과 최소 동전 수를 함께 맞춰 보세요.';
+    }
+  }
+
+  function drawChart(myCounts, gCounts, myCoins, gCoins, bruteCount){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cw = canvas.clientWidth || 900;
+    const ch = Math.max(500, Math.min(700, Math.round(cw*0.68)));
+    canvas.style.height = ch + 'px';
+    canvas.width = Math.round(cw * dpr);
+    canvas.height = Math.round(ch * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    const w = cw, h = ch;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0,0,w,h);
+
+    const titleFont = 'bold ' + Math.max(18, Math.round(w*0.025)) + 'px Arial';
+    const labelFont = 'bold ' + Math.max(13, Math.round(w*0.016)) + 'px Arial';
+    const smallFont = Math.max(12, Math.round(w*0.014)) + 'px Arial';
+
+    ctx.fillStyle = '#183153';
+    ctx.font = titleFont;
+    ctx.fillText('비교 그래프', 18, 30);
+
+    ctx.font = labelFont;
+    ctx.fillStyle = '#2f6fff';
+    ctx.fillRect(w-250, 14, 18, 18);
+    ctx.fillStyle = '#183153';
+    ctx.fillText('내 선택', w-225, 29);
+    ctx.fillStyle = '#14a06f';
+    ctx.fillRect(w-140, 14, 18, 18);
+    ctx.fillStyle = '#183153';
+    ctx.fillText('그리디', w-115, 29);
+
+    const top = {x:70, y:65, w:w-110, h:h*0.42};
+    const bottom = {x:70, y:h*0.60, w:w-110, h:h*0.25};
+
+    ctx.font = labelFont;
+    ctx.fillStyle = '#183153';
+    ctx.fillText('동전 개수 비교', top.x, top.y-14);
+
+    const labels = ['500원','100원','50원','10원','전체'];
+    const myVals = [myCounts[500], myCounts[100], myCounts[50], myCounts[10], myCoins];
+    const gVals = [gCounts[500], gCounts[100], gCounts[50], gCounts[10], gCoins];
+    const maxVal = Math.max(1, ...myVals, ...gVals);
+
+    ctx.strokeStyle = '#567';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(top.x, top.y);
+    ctx.lineTo(top.x, top.y+top.h);
+    ctx.lineTo(top.x+top.w, top.y+top.h);
+    ctx.stroke();
+
+    ctx.font = smallFont;
+    for(let i=0;i<=maxVal;i++){
+      const y = top.y + top.h - (i/maxVal)*top.h;
+      ctx.strokeStyle = i===0 ? '#567' : '#e8eef8';
+      ctx.beginPath();
+      ctx.moveTo(top.x, y);
+      ctx.lineTo(top.x+top.w, y);
+      ctx.stroke();
+      ctx.fillStyle = '#567';
+      ctx.textAlign = 'right';
+      ctx.fillText(i, top.x-8, y+4);
+    }
+
+    const groupW = top.w / labels.length;
+    const barW = Math.min(34, groupW*0.23);
+
+    labels.forEach((label, i)=>{
+      const cx = top.x + groupW*i + groupW/2;
+      const h1 = (myVals[i]/maxVal)*top.h;
+      const h2 = (gVals[i]/maxVal)*top.h;
+
+      ctx.fillStyle = '#2f6fff';
+      ctx.fillRect(cx-barW-4, top.y+top.h-h1, barW, h1);
+      ctx.fillStyle = '#14a06f';
+      ctx.fillRect(cx+4, top.y+top.h-h2, barW, h2);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#183153';
+      ctx.fillText(label, cx, top.y+top.h+22);
+
+      ctx.fillStyle = '#2f6fff';
+      ctx.fillText(myVals[i], cx-barW/2-4, top.y+top.h-h1-8);
+      ctx.fillStyle = '#14a06f';
+      ctx.fillText(gVals[i], cx+barW/2+4, top.y+top.h-h2-8);
+    });
+
+    ctx.font = labelFont;
+    ctx.fillStyle = '#183153';
+    ctx.textAlign = 'left';
+    ctx.fillText('효율 비교', bottom.x, bottom.y-14);
+
+    ctx.strokeStyle = '#567';
+    ctx.beginPath();
+    ctx.moveTo(bottom.x, bottom.y);
+    ctx.lineTo(bottom.x, bottom.y+bottom.h);
+    ctx.lineTo(bottom.x+bottom.w, bottom.y+bottom.h);
+    ctx.stroke();
+
+    const vals = [4, bruteCount];
+    const names = ['그리디 확인 횟수(번)','가능한 조합 수(개)'];
+    const colors = ['#14a06f','#f39c12'];
+    const logs = vals.map(v=>Math.log10(v+1));
+    const maxLog = Math.max(1, ...logs);
+    const x1 = bottom.x + bottom.w*0.28;
+    const x2 = bottom.x + bottom.w*0.68;
+    const bw = Math.min(120, bottom.w*0.18);
+
+    for(let i=0;i<=Math.ceil(maxLog);i++){
+      const y = bottom.y + bottom.h - (i/maxLog)*bottom.h;
+      ctx.strokeStyle = '#e8eef8';
+      ctx.beginPath();
+      ctx.moveTo(bottom.x, y);
+      ctx.lineTo(bottom.x+bottom.w, y);
+      ctx.stroke();
+      ctx.fillStyle = '#567';
+      ctx.textAlign = 'right';
+      ctx.fillText(i===0 ? '1' : '10^'+i, bottom.x-8, y+4);
+    }
+
+    [x1,x2].forEach((x, i)=>{
+      const bh = (logs[i]/maxLog)*bottom.h;
+      ctx.fillStyle = colors[i];
+      ctx.fillRect(x-bw/2, bottom.y+bottom.h-bh, bw, bh);
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#183153';
+      ctx.fillText(names[i], x, bottom.y+bottom.h+24);
+      ctx.fillText(fmt(vals[i]), x, bottom.y+bottom.h-bh-10);
+    });
+
+    ctx.font = smallFont;
+    ctx.fillStyle = '#456';
+    ctx.textAlign = 'left';
+    ctx.fillText('세로축은 큰 수를 비교하기 위해 로그 눈금으로 그림', bottom.x, h-14);
+  }
+
+  function updateConcept(n, myCoins, gCoins, bruteCount){
+    let t = '';
+    t += '<b>왜 그리디가 효율적일까?</b> ';
+    t += fmt(n) + '원을 거슬러 주는 방법을 모두 따지면 최대 <b>' + fmt(bruteCount) + '가지</b>까지 생각할 수 있습니다. ';
+    t += '하지만 그리디 알고리즘은 <b>500원, 100원, 50원, 10원</b>의 4종류만 차례대로 보면 됩니다. ';
+    if(myCoins > gCoins){
+      t += '지금 당신의 방법보다 그리디가 <b>' + (myCoins-gCoins) + '개 적은 동전</b>으로 해결합니다. ';
+    } else if(myCoins === gCoins){
+      t += '지금 당신의 답도 최소 동전 수와 같습니다. ';
+    }
+    t += '이 동전 체계에서는 큰 동전이 작은 동전 여러 개를 잘 대신하므로, <b>가장 큰 동전부터 선택하는 전략</b>이 최소 동전 수를 만듭니다.';
+    conceptText.innerHTML = t;
+  }
+
+  function update(){
+    const n = +amount.value;
+    amountText.textContent = fmt(n);
+    varN.textContent = fmt(n);
+
+    updateMaxRanges(n);
+
+    c500Text.textContent = c500.value;
+    c100Text.textContent = c100.value;
+    c50Text.textContent = c50.value;
+    c10Text.textContent = c10.value;
+
+    const my = getMyCounts();
+    const myMoney = calcMoney(my);
+    const myCoins = calcCoins(my);
+    const diff = n - myMoney;
+
+    v500.textContent = fmt(my[500]*500);
+    v100.textContent = fmt(my[100]*100);
+    v50.textContent = fmt(my[50]*50);
+    v10.textContent = fmt(my[10]*10);
+
+    myTotalMoney.textContent = fmt(myMoney);
+    varMyMoney.textContent = fmt(myMoney);
+    varMyCoins.textContent = fmt(myCoins);
+    varDiff.textContent = (diff >= 0 ? fmt(diff) : '-' + fmt(Math.abs(diff)));
+
+    const greedy = greedyChange(n);
+    const g = greedy.result;
+    const gCoins = calcCoins(g);
+
+    greedyTotalMoney.textContent = fmt(n);
+    greedyCoinCount.textContent = gCoins;
+    g500.textContent = g[500];
+    g100.textContent = g[100];
+    g50.textContent = g[50];
+    g10.textContent = g[10];
+
+    greedyChecks.textContent = 4;
+    const bruteCount = bruteForceUpperBound(n);
+    bruteforceChecks.textContent = fmt(bruteCount);
+
+    setSteps(greedy.steps);
+    setStatus(n, myMoney, myCoins, gCoins);
+    updateConcept(n, myCoins, gCoins, bruteCount);
+    drawChart(my, g, myCoins, gCoins, bruteCount);
+  }
+
+  function applyGreedy(){
+    const n = +amount.value;
+    const g = greedyChange(n).result;
+    c500.value = g[500];
+    c100.value = g[100];
+    c50.value = g[50];
+    c10.value = g[10];
+    update();
+  }
+
+  function reset(){
+    amount.value = 1260;
+    c500.value = 0;
+    c100.value = 0;
+    c50.value = 0;
+    c10.value = 0;
+    update();
+  }
+
+  function randomizeAmount(){
+    const maxStep = 5000 / 10;
+    const pick = Math.floor(Math.random() * (maxStep + 1)) * 10;
+    amount.value = pick;
+    c500.value = 0;
+    c100.value = 0;
+    c50.value = 0;
+    c10.value = 0;
+    update();
+  }
+
+  [amount, c500, c100, c50, c10].forEach(el=>{
+    el.addEventListener('input', update);
+  });
+
+  fillGreedy.addEventListener('click', applyGreedy);
+  randomAmount.addEventListener('click', randomizeAmount);
+  resetAll.addEventListener('click', reset);
+  window.addEventListener('resize', update);
+
+  update();
+})();
+</script>
+</body>
+</html>
